@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.1 - AI & Charts
+
+### 🚀 New Features
+
+- Added bar chart displaying iRating by category.
+- Added AI that reacts to race results on Discord.
+
+### 🛠 New commands
+- `!irating <category> [<smurf>]` - Now supports an optional `smurf` parameter. If specified, accounts tagged as smurf will be included in the table and charts.
+- `!user add <id> <user_discord_id> [<smurf>]` - Added `user_discord_id` parameter to mention users in race results. `smurf` remains optional.
+- `!user updateall` was renamed to `!admin update`.
+
+
 ## v0.1.0 - Initial Release
 
 ### 🚀 Features

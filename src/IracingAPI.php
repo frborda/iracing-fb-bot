@@ -25,6 +25,8 @@ class IracingAPI {
             "password" => $this->encodePassword()
         ]);
 
+        echo $this->encodePassword();
+
         $ch = curl_init($this->loginUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -37,6 +39,13 @@ class IracingAPI {
         curl_close($ch);
 
         $json = json_decode($response, true);
+
+        if ($httpCode == 200 && array_key_exists('message',$json) && $json['message'] == 'recaptcha verification required and not supplied') {
+            echo "❌ Error en la autenticación: Requiere verificación reCAPTCHA\n";
+            sleep(600);
+            return false;
+        }
+
 
         if ($httpCode == 200 && isset($json['authcode'])) {
             echo "✅ Autenticación exitosa. Cookie guardada.\n";
@@ -68,7 +77,6 @@ class IracingAPI {
     public function getMemberStats($ids, $relogin = true) {
         $dataUrl = "https://members-ng.iracing.com/data/member/get?cust_ids={$ids}&include_licenses=true";
         [$response, $httpCode] = $this->getData($dataUrl);
-        var_dump($response);
         $json = json_decode($response, true);
         
         if ($httpCode == 200 && isset($json['link'])) {
@@ -81,16 +89,17 @@ class IracingAPI {
         } else {
             echo "❌ Error al obtener datos: {$response}\n";
         }
-        return null;
+        return false;
     }
 
     public function getMemberRecentRaces($id, $relogin = true) {
         $dataUrl = "https://members-ng.iracing.com/data/stats/member_recent_races?cust_id={$id}";
         [$response, $httpCode] = $this->getData($dataUrl);
-        var_dump($response);
         $json = json_decode($response, true);
         if ($httpCode == 200 && isset($json['link'])) {
-            return $this->getContentLink($json['link']);
+            $link = $json['link'];
+            echo "{$link}\n";
+            return $this->getContentLink($link);
         } elseif ($httpCode == 401 && $relogin) {
             echo "🔄 Autenticación requerida. Reintentando...\n";
             if ($this->authenticate()) {
@@ -99,6 +108,6 @@ class IracingAPI {
         } else {
             echo "❌ Error al obtener datos: {$response}\n";
         }
-        return null;
+        return false;
     }
 }
